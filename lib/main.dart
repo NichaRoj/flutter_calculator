@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(title: 'Welcome to Flutter', home: Calculator());
+    return const MaterialApp(home: Calculator());
   }
 }
 
@@ -86,44 +86,80 @@ class _CalculatorState extends State<Calculator> {
     }
 
     setState(() {
-      result = answer.toInt() == answer
-          ? answer.toInt().toString()
-          : answer.toString();
+      var wholeNumber = answer.truncate();
+      if (wholeNumber == answer) {
+        result = wholeNumber.toString();
+      } else {
+        var digits = 15 - wholeNumber.toString().length;
+        result = answer.toStringAsFixed(digits);
+      }
     });
   }
 
   void reset() {
     setState(() {
       result = '0';
+      prevResult = '';
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: Column(
+      child: ClipRRect(
+        borderRadius: const BorderRadius.all(Radius.circular(16.0)),
+        child: Stack(
           children: [
-            Text(
-              prevResult,
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: <Color>[
+                      Color(0xFF0D47A1),
+                      Color(0xFF1976D2),
+                      Color(0xFF42A5F5),
+                    ],
+                  ),
+                ),
+              ),
             ),
-            Text(
-              result,
-            ),
-            CalculatorButtons(onPressed: appendResult,
-                onEqualPressed: calculate,
-                onResetPressed: reset)
+            Container(
+                margin: const EdgeInsets.all(32.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(prevResult,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            decoration: TextDecoration.none,
+                            fontSize: 16.0)),
+                    FittedBox(
+                      child: Text(result,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              color: Colors.white,
+                              decoration: TextDecoration.none)),
+                    ),
+                    const SizedBox(height: 32.0),
+                    CalculatorButtons(
+                        onPressed: appendResult,
+                        onEqualPressed: calculate,
+                        onResetPressed: reset)
+                  ],
+                ))
           ],
-        ));
+        ),
+      ),
+    );
   }
 }
 
 class CalculatorButtons extends StatelessWidget {
-  const CalculatorButtons({
-    Key? key,
-    this.onPressed,
-    this.onEqualPressed,
-    this.onResetPressed
-  }) : super(key: key);
+  const CalculatorButtons(
+      {Key? key, this.onPressed, this.onEqualPressed, this.onResetPressed})
+      : super(key: key);
 
   final Function? onPressed;
   final Function? onEqualPressed;
@@ -131,6 +167,23 @@ class CalculatorButtons extends StatelessWidget {
 
   TextButton buildButton(String value) {
     return TextButton(
+        style: ButtonStyle(
+          padding:
+              MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(16.0)),
+          foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+          overlayColor: MaterialStateProperty.resolveWith<Color?>(
+            (Set<MaterialState> states) {
+              if (states.contains(MaterialState.hovered)) {
+                return Colors.white.withOpacity(0.2);
+              }
+              if (states.contains(MaterialState.focused) ||
+                  states.contains(MaterialState.pressed)) {
+                return Colors.white.withOpacity(0.5);
+              }
+              return null; // Defer to the widget's default.
+            },
+          ),
+        ),
         onPressed: () {
           if (value == '=') {
             onEqualPressed!();
@@ -140,12 +193,15 @@ class CalculatorButtons extends StatelessWidget {
             onPressed!(value);
           }
         },
-        child: Text(value));
+        child: Text(value,
+            style: const TextStyle(color: Colors.white, fontSize: 24.0)));
   }
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Column(
           children: [
@@ -155,6 +211,7 @@ class CalculatorButtons extends StatelessWidget {
             buildButton('0')
           ],
         ),
+        const SizedBox(width: 16.0),
         Column(
           children: [
             buildButton('8'),
@@ -163,6 +220,7 @@ class CalculatorButtons extends StatelessWidget {
             buildButton('AC')
           ],
         ),
+        const SizedBox(width: 16.0),
         Column(
           children: [
             buildButton('9'),
@@ -171,6 +229,7 @@ class CalculatorButtons extends StatelessWidget {
             buildButton('=')
           ],
         ),
+        const SizedBox(width: 16.0),
         Column(
           children: [
             buildButton('/'),
