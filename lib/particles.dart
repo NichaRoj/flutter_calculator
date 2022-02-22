@@ -34,7 +34,8 @@ class _ParticlesState extends State<Particles>
             squareSize: squareSize,
             position: squarePosition,
             breathe: 2 + random.nextDouble() * squareSize / 2,
-            breatheDuration: Duration(seconds: 2 + random.nextInt(3))
+            breatheDuration: Duration(seconds: 2 + random.nextInt(3)),
+            colorSaturation: random.nextDouble(),
           ));
         });
       }
@@ -62,13 +63,15 @@ class Square extends StatefulWidget {
   final List<double> position;
   final double breathe;
   final Duration breatheDuration;
+  final double colorSaturation;
 
   const Square(
       {Key? key,
       this.squareSize = 20.0,
       this.position = const [0.0, 0.0],
       this.breathe = 5.0,
-      this.breatheDuration = const Duration(seconds: 3)})
+      this.breatheDuration = const Duration(seconds: 3),
+      this.colorSaturation = 0.8})
       : super(key: key);
 
   @override
@@ -86,7 +89,7 @@ class _SquareState extends State<Square> with SingleTickerProviderStateMixin {
     _ticker = createTicker((elapsed) {
       if (currentSize == 0.0) {
         setState(() {
-          currentSize = widget.squareSize;
+          currentSize = widget.squareSize + widget.breathe;
         });
       } else if (elapsed.inSeconds > 0 &&
           elapsed.inSeconds %
@@ -117,7 +120,11 @@ class _SquareState extends State<Square> with SingleTickerProviderStateMixin {
         top: widget.position[1],
         child: AnimatedContainer(
           duration: widget.breatheDuration,
-          decoration: const BoxDecoration(color: Color(0xFF1976D2)),
+          decoration: BoxDecoration(
+              color: Color.alphaBlend(
+            const Color(0xFF1976D2).withOpacity(widget.colorSaturation),
+            Colors.white,
+          )),
           width: currentSize,
           height: currentSize,
           curve: Curves.easeInOutSine,
