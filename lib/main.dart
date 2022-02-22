@@ -2,8 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:math';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import './calculator.dart';
+import './background.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,42 +21,89 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MainPage extends StatefulWidget {
+class MainPage extends StatelessWidget {
   const MainPage({Key? key}) : super(key: key);
-
-  @override
-  _MainPageState createState() => _MainPageState();
-}
-
-class _MainPageState extends State<MainPage> {
-  var isDarkMode = false;
 
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
-      Container(
-          alignment: Alignment.topRight,
-          color: isDarkMode ? Colors.black : Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextButton(
-                style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 24.0, horizontal: 0.0),
-                    side: const BorderSide(width: 2.0, color: Colors.grey)),
-                child:
-                    isDarkMode ? const Icon(Icons.nights_stay, color: Colors.grey,) : const Icon(Icons.wb_sunny, color: Colors.grey,),
-                onPressed: () {
-                  setState(() {
-                    if (isDarkMode) {
-                      isDarkMode = false;
-                    } else {
-                      isDarkMode = true;
-                    }
-                  });
-                }),
-          )),
+      const Background(),
+      Container(child: RandomCanvas()),
       const Calculator()
     ]);
   }
+}
+
+class RandomCanvas extends StatefulWidget {
+  const RandomCanvas({Key? key}) : super(key: key);
+
+  @override
+  _RandomCanvasState createState() => _RandomCanvasState();
+}
+
+class _RandomCanvasState extends State<RandomCanvas> {
+  var squares = <Square>[];
+
+  @override
+  Widget build(BuildContext context) {
+    Timer.periodic(const Duration(seconds: 10), (timer) {
+      Random random = Random();
+      var squareSize = random.nextInt(50).toDouble();
+      var screenSize = MediaQuery.of(context).size;
+      var width = screenSize.width;
+      var height = screenSize.height;
+      var squarePosition =
+          Offset(random.nextDouble() * width, random.nextDouble() * height);
+
+      setState(() {
+        squares.add(Square(
+          squareSize: squareSize,
+          position: squarePosition,
+        ));
+      });
+
+      if (squares.length <= 50) {
+        timer.cancel();
+      }
+    });
+
+    return Stack(
+      children: squares,
+    );
+  }
+}
+
+class Square extends StatelessWidget {
+  const Square(
+      {Key? key, this.squareSize = 1.0, this.position = const Offset(0.0, 0.0)})
+      : super(key: key);
+
+  final double squareSize;
+  final Offset position;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+        painter: RandomPainter(position: position, squareSize: squareSize));
+  }
+}
+
+class RandomPainter extends CustomPainter {
+  Offset position;
+  double squareSize;
+
+  RandomPainter(
+      {this.position = const Offset(0.0, 0.0), this.squareSize = 1.0});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint brush = Paint()
+      ..color = const Color(0xFF1976D2)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawRect(position & Size(squareSize, squareSize), brush);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
