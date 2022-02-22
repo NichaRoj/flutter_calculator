@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:expressions/expressions.dart';
 
 class Calculator extends StatefulWidget {
   const Calculator({Key? key}) : super(key: key);
@@ -32,41 +33,7 @@ class _CalculatorState extends State<Calculator> {
       prevResult = result;
     });
 
-    var inputs = result.split(' ');
-    var answer = 0.0;
-
-    for (int i = 0; i < inputs.length; i++) {
-      if (i == 0) {
-        answer += double.parse(inputs[i]);
-      } else {
-        switch (inputs[i]) {
-          case '+':
-            {
-              answer += double.parse(inputs[i + 1]);
-            }
-            break;
-          case '-':
-            {
-              answer -= double.parse(inputs[i + 1]);
-            }
-            break;
-          case '*':
-            {
-              answer *= double.parse(inputs[i + 1]);
-            }
-            break;
-          case '/':
-            {
-              answer /= double.parse(inputs[i + 1]);
-            }
-            break;
-          default:
-            {
-              break;
-            }
-        }
-      }
-    }
+    var answer = const ExpressionEvaluator().eval(Expression.parse(result), {});
 
     setState(() {
       var wholeNumber = answer.truncate();
