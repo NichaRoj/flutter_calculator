@@ -150,3 +150,5 @@ class _SquareState extends State<Square> with TickerProviderStateMixin {
     );
   }
 }
+
+// Credit: 'https://github.com/NichaRoj/flutter_calculator'

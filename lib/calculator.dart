@@ -97,7 +97,7 @@ class _CalculatorState extends State<Calculator> {
                     CalculatorButtons(
                         onPressed: appendResult,
                         onEqualPressed: calculate,
-                        onResetPressed: reset)
+                        onResetPressed: reset),
                   ],
                 ))
           ],
@@ -106,6 +106,8 @@ class _CalculatorState extends State<Calculator> {
     );
   }
 }
+
+// Credit: 'https://github.com/NichaRoj/flutter_calculator'
 
 class CalculatorButtons extends StatelessWidget {
   const CalculatorButtons(
@@ -120,10 +122,10 @@ class CalculatorButtons extends StatelessWidget {
     return TextButton(
         style: ButtonStyle(
           padding:
-          MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(16.0)),
+              MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(16.0)),
           foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
           overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                (Set<MaterialState> states) {
+            (Set<MaterialState> states) {
               if (states.contains(MaterialState.hovered)) {
                 return Colors.white.withOpacity(0.2);
               }
@@ -193,3 +195,5 @@ class CalculatorButtons extends StatelessWidget {
     );
   }
 }
+
+// Credit: 'https://github.com/NichaRoj/flutter_calculator'
