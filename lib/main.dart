@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import 'dart:math';
-import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import './calculator.dart';
 import './background.dart';
 
@@ -41,31 +41,47 @@ class RandomCanvas extends StatefulWidget {
   _RandomCanvasState createState() => _RandomCanvasState();
 }
 
-class _RandomCanvasState extends State<RandomCanvas> {
+class _RandomCanvasState extends State<RandomCanvas>
+    with SingleTickerProviderStateMixin {
+  late final Ticker _ticker;
   var squares = <Square>[];
 
   @override
-  Widget build(BuildContext context) {
-    Timer.periodic(const Duration(seconds: 10), (timer) {
-      Random random = Random();
-      var squareSize = random.nextInt(50).toDouble();
-      var screenSize = MediaQuery.of(context).size;
-      var width = screenSize.width;
-      var height = screenSize.height;
-      var squarePosition =
-          Offset(random.nextDouble() * width, random.nextDouble() * height);
+  void initState() {
+    super.initState();
+    _ticker = createTicker((elapsed) {
+      if (elapsed.inSeconds > 0 && elapsed.inSeconds % (3 * (squares.length + 1)) == 0  && squares.length < 50) {
+        Random random = Random();
+        var squareSize = random.nextInt(20).toDouble() + 5;
+        var screenSize = MediaQuery.of(context).size;
+        var width = screenSize.width;
+        var height = screenSize.height;
+        var squarePosition = [
+          random.nextDouble() * width,
+          random.nextDouble() * height
+        ];
 
-      setState(() {
-        squares.add(Square(
-          squareSize: squareSize,
-          position: squarePosition,
-        ));
-      });
+        setState(() {
+          squares.add(Square(
+            squareSize: squareSize,
+            position: squarePosition,
+          ));
+        });
 
-      if (squares.length <= 50) {
-        timer.cancel();
       }
     });
+
+    _ticker.start();
+  }
+
+  @override
+  void dispose() {
+    _ticker.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
 
     return Stack(
       children: squares,
@@ -75,16 +91,18 @@ class _RandomCanvasState extends State<RandomCanvas> {
 
 class Square extends StatelessWidget {
   const Square(
-      {Key? key, this.squareSize = 1.0, this.position = const Offset(0.0, 0.0)})
+      {Key? key, this.squareSize = 1.0, this.position = const [0.0, 0.0]})
       : super(key: key);
 
   final double squareSize;
-  final Offset position;
+  final List<double> position;
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-        painter: RandomPainter(position: position, squareSize: squareSize));
+        painter: RandomPainter(
+            position: Offset(position[0], position[1]),
+            squareSize: squareSize));
   }
 }
 
