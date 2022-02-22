@@ -19,8 +19,7 @@ class _ParticlesState extends State<Particles>
     super.initState();
     _ticker = createTicker((elapsed) {
       if (elapsed.inSeconds > 0 &&
-          elapsed.inSeconds % (2 * (squares.length + 1)) == 0 &&
-          squares.length < 50) {
+          elapsed.inSeconds % (2 * (squares.length + 1)) == 0) {
         Random random = Random();
         var squareSize = random.nextInt(17).toDouble() + 3;
         var screenSize = MediaQuery.of(context).size;
@@ -36,8 +35,12 @@ class _ParticlesState extends State<Particles>
             breathe: 2 + random.nextDouble() * squareSize / 2,
             breatheDuration: Duration(seconds: 3 + random.nextInt(2)),
             colorSaturation: random.nextDouble(),
-            direction: 2 * pi * random.nextDouble()
+            direction: 2 * pi * random.nextDouble(),
           ));
+
+          if (squares.length > 100) {
+            squares.removeAt(0);
+          }
         });
       }
     });
@@ -132,8 +135,12 @@ class _SquareState extends State<Square> with TickerProviderStateMixin {
       children: [
         AnimatedPositioned(
           duration: const Duration(minutes: 20),
-          left: startMoving ? widget.position[0] + sin(widget.direction) * 10000 : widget.position[0],
-          top: startMoving ? widget.position[1] + cos(widget.direction) * 10000 : widget.position[1],
+          left: startMoving
+              ? widget.position[0] + sin(widget.direction) * 10000
+              : widget.position[0],
+          top: startMoving
+              ? widget.position[1] + cos(widget.direction) * 10000
+              : widget.position[1],
           child: AnimatedContainer(
             duration: widget.breatheDuration,
             decoration: BoxDecoration(

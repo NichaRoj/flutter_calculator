@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import './calculator.dart';
 import './background.dart';
-import './particles.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -27,7 +27,6 @@ class MainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(children: const [
       Background(),
-      Particles(),
       Calculator()
     ]);
   }
