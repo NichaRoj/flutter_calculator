@@ -8,7 +8,7 @@ class Background extends StatefulWidget {
 }
 
 class _BackgroundState extends State<Background> {
-  var isDarkMode = false;
+  var isDarkMode = true;
 
   @override
   Widget build(BuildContext context) {

@@ -19,10 +19,10 @@ class _ParticlesState extends State<Particles>
     super.initState();
     _ticker = createTicker((elapsed) {
       if (elapsed.inSeconds > 0 &&
-          elapsed.inSeconds % (3 * (squares.length + 1)) == 0 &&
+          elapsed.inSeconds % (2 * (squares.length + 1)) == 0 &&
           squares.length < 50) {
         Random random = Random();
-        var squareSize = random.nextInt(20).toDouble() + 5;
+        var squareSize = random.nextInt(17).toDouble() + 3;
         var screenSize = MediaQuery.of(context).size;
         var squarePosition = [
           random.nextDouble() * screenSize.width,
@@ -34,8 +34,9 @@ class _ParticlesState extends State<Particles>
             squareSize: squareSize,
             position: squarePosition,
             breathe: 2 + random.nextDouble() * squareSize / 2,
-            breatheDuration: Duration(seconds: 2 + random.nextInt(3)),
+            breatheDuration: Duration(seconds: 3 + random.nextInt(2)),
             colorSaturation: random.nextDouble(),
+            direction: 2 * pi * random.nextDouble()
           ));
         });
       }
@@ -64,6 +65,7 @@ class Square extends StatefulWidget {
   final double breathe;
   final Duration breatheDuration;
   final double colorSaturation;
+  final double direction;
 
   const Square(
       {Key? key,
@@ -71,22 +73,26 @@ class Square extends StatefulWidget {
       this.position = const [0.0, 0.0],
       this.breathe = 5.0,
       this.breatheDuration = const Duration(seconds: 3),
-      this.colorSaturation = 0.8})
+      this.colorSaturation = 0.8,
+      this.direction = pi})
       : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _SquareState();
 }
 
-class _SquareState extends State<Square> with SingleTickerProviderStateMixin {
+class _SquareState extends State<Square> with TickerProviderStateMixin {
   late final Ticker _ticker;
   double currentSize = 0.0;
   double animTracker = 1;
+  bool startMoving = false;
 
   @override
   void initState() {
     super.initState();
+
     _ticker = createTicker((elapsed) {
+      // Breathing
       if (currentSize == 0.0) {
         setState(() {
           currentSize = widget.squareSize + widget.breathe;
@@ -102,6 +108,13 @@ class _SquareState extends State<Square> with SingleTickerProviderStateMixin {
           animTracker++;
         });
       }
+
+      // Movement
+      if (!startMoving && elapsed.inMilliseconds > 100) {
+        setState(() {
+          startMoving = true;
+        });
+      }
     });
 
     _ticker.start();
@@ -115,19 +128,25 @@ class _SquareState extends State<Square> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-        left: widget.position[0],
-        top: widget.position[1],
-        child: AnimatedContainer(
-          duration: widget.breatheDuration,
-          decoration: BoxDecoration(
-              color: Color.alphaBlend(
-            const Color(0xFF1976D2).withOpacity(widget.colorSaturation),
-            Colors.white,
-          )),
-          width: currentSize,
-          height: currentSize,
-          curve: Curves.easeInOutSine,
-        ));
+    return Stack(
+      children: [
+        AnimatedPositioned(
+          duration: const Duration(minutes: 20),
+          left: startMoving ? widget.position[0] + sin(widget.direction) * 10000 : widget.position[0],
+          top: startMoving ? widget.position[1] + cos(widget.direction) * 10000 : widget.position[1],
+          child: AnimatedContainer(
+            duration: widget.breatheDuration,
+            decoration: BoxDecoration(
+                color: Color.alphaBlend(
+              const Color(0xFF1976D2).withOpacity(widget.colorSaturation),
+              Colors.white,
+            )),
+            width: currentSize,
+            height: currentSize,
+            curve: Curves.easeInOutSine,
+          ),
+        )
+      ],
+    );
   }
 }
