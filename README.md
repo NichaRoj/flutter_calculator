@@ -1,16 +1,16 @@
-# flutter_calculator
+# It's a calculator.
 
-A simple calculator to relearn Flutter.
+![](screenshot.png)
 
-## Getting Started
+I made this to learn Flutter again since the last time I used it, Flutter didn't even have version 1.0
 
-This project is a starting point for a Flutter application.
+You can see the app [here.](https://nicharoj.github.io/flutter_calculator) There might some delay as the page loads.
 
-A few resources to get you started if this is your first Flutter project:
+## Features:
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+- Math calculation using [expressions.](https://pub.dev/packages/expressions)
+- Floating particles in the background.
+- A button for changing background color.
+- A button to open this github page using [url_launcher.](https://pub.dev/packages/url_launcher)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+I don't know why you would, but please don't use my code in this project.
